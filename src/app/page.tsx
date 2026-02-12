@@ -41,24 +41,22 @@ export default function AssignmentPage() {
   const [activeLeftPanel, setActiveLeftPanel] = useState<'conversation' | 'explainer'>('conversation');
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [isCodeModified, setIsCodeModified] = useState(false);
-  const [systemPrefersDark, setSystemPrefersDark] = useState(false);
 
   useEffect(() => {
     const storedTheme = localStorage.getItem('ryze-theme') as 'light' | 'dark' | 'system' | null;
     const initialTheme = storedTheme || 'system';
     setThemeMode(initialTheme);
     applyTheme(initialTheme);
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = () => {
-      setSystemPrefersDark(mediaQuery.matches);
-      if (themeMode === 'system') {
-        applyTheme('system');
-      }
-    };
 
-    setSystemPrefersDark(mediaQuery.matches);
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
+    // Listen for system theme changes
+    if (initialTheme === 'system') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const handleChange = () => {
+        applyTheme('system');
+      };
+      mediaQuery.addEventListener('change', handleChange);
+      return () => mediaQuery.removeEventListener('change', handleChange);
+    }
   }, []);
 
   const applyTheme = (mode: 'light' | 'dark' | 'system') => {
@@ -79,10 +77,16 @@ export default function AssignmentPage() {
     setThemeMode(mode);
     localStorage.setItem('ryze-theme', mode);
     applyTheme(mode);
-  };
 
-  const effectiveTheme =
-    themeMode === 'system' ? (systemPrefersDark ? 'dark' : 'light') : themeMode;
+    // Set up listener if switching to system mode
+    if (mode === 'system') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const handleChange = () => {
+        applyTheme('system');
+      };
+      mediaQuery.addEventListener('change', handleChange);
+    }
+  };
 
   const hasHistory = versions.length > 0;
   const currentVersion = useMemo(() => {
@@ -164,21 +168,6 @@ export default function AssignmentPage() {
     setCurrentExplanation(version.explanation);
   };
 
-  const handleNewSession = () => {
-    setMessages([]);
-    setVersions([]);
-    setCurrentVersionIndex(null);
-    setCurrentPlan(null);
-    setCurrentCode('');
-    setCurrentExplanation('');
-    setPrompt('');
-    setIsGenerating(false);
-    setIsCodeModified(false);
-    setShowHistoryModal(false);
-    setActiveLeftPanel('conversation');
-    setActiveMobileView('code');
-  };
-
   return (
     <main className="app-bg relative min-h-screen overflow-hidden">
       <div className="shell">
@@ -186,16 +175,16 @@ export default function AssignmentPage() {
           <div className="brand">
             <div className="brand-mark">RZ</div>
             <div>
-              <p className="eyebrow">Ryze Studio</p>
+              <p className="eyebrow">Ryze AI</p>
               <h1 className="brand-title">Deterministic UI Generator</h1>
             </div>
           </div>
           <div className="actions">
             <button
               className={`btn btn-icon ${
-                effectiveTheme === 'light'
+                themeMode === 'light'
                   ? 'bg-yellow-200 text-yellow-800'
-                  : effectiveTheme === 'dark'
+                  : themeMode === 'dark'
                   ? 'bg-slate-700 text-slate-100'
                   : 'bg-purple-200 text-purple-800'
               }`}
@@ -212,9 +201,7 @@ export default function AssignmentPage() {
               {themeMode === 'dark' && '🌙'}
               {themeMode === 'system' && '💻'}
             </button>
-            <button className="btn btn-ghost" onClick={handleNewSession} type="button">
-              New Session
-            </button>
+            <button className="btn btn-ghost">New Session</button>
             <button className="btn btn-primary" onClick={() => setShowHistoryModal(true)}>
               View History
             </button>
@@ -286,24 +273,16 @@ export default function AssignmentPage() {
                   <p className="text-sm text-muted">Generate a UI to see the reasoning here.</p>
                 )}
               </div>
-              <div className="mt-2 flex gap-2 border-t pt-2">
+              <div className="panel-tabs">
                 <button
-                  className={`flex-1 text-xs px-2 py-1 rounded transition ${
-                    activeLeftPanel === 'conversation'
-                      ? 'bg-primary text-white'
-                      : 'bg-muted text-muted-foreground hover:bg-opacity-80'
-                  }`}
+                  className={`panel-tab ${activeLeftPanel === 'conversation' ? 'is-active' : ''}`}
                   onClick={() => setActiveLeftPanel('conversation')}
                   type="button"
                 >
                   Conversation
                 </button>
                 <button
-                  className={`flex-1 text-xs px-2 py-1 rounded transition ${
-                    activeLeftPanel === 'explainer'
-                      ? 'bg-primary text-white'
-                      : 'bg-muted text-muted-foreground hover:bg-opacity-80'
-                  }`}
+                  className={`panel-tab ${activeLeftPanel === 'explainer' ? 'is-active' : ''}`}
                   onClick={() => setActiveLeftPanel('explainer')}
                   type="button"
                 >
