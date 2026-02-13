@@ -320,9 +320,22 @@ body {
 }
 
 .preview-live {
-  height: 100%;
-  overflow: auto;
+  height: auto;
+  overflow: visible;
   padding: 8px;
+}
+
+.preview-stack {
+  display: grid;
+  gap: 16px;
+  width: 100%;
+}
+
+.preview-main {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+  align-content: start;
 }
 
 .mobile-toggle {
@@ -815,9 +828,14 @@ body {
 
 .preview-pane {
   flex: 1;
-  min-height: 280px;
+  min-height: unset;
   padding: 24px;
   background: var(--preview-bg);
+}
+
+.preview-surface {
+  min-height: unset;
+  overflow: visible;
 }
 
 .preview-icon {

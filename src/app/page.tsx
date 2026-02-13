@@ -227,7 +227,7 @@ export default function AssignmentPage() {
 
         <section className="claude-layout">
           <div className="left-rail">
-            <div className="surface">
+            <div className="surface preview-surface">
               <div className="panel-head">
                 <div>
                   <h2 className="text-lg font-semibold text-primary">Describe a UI</h2>
@@ -538,14 +538,31 @@ function parsePlannerResponse(raw: string): PlannerResponse {
 
 function renderPlan(plan: UIPlan) {
   const layoutType = plan.layout as unknown as 'grid' | 'flex' | 'sidebar-layout';
+  const navbarNodes = plan.components.filter((node) => node.type === 'Navbar');
+  const sidebarNodes = plan.components.filter((node) => node.type === 'Sidebar');
+  const mainNodes = plan.components.filter(
+    (node) => node.type !== 'Navbar' && node.type !== 'Sidebar'
+  );
+  const resolvedLayout = sidebarNodes.length > 0 ? 'sidebar-layout' : layoutType;
+  const renderNodes = (nodes: PlanNode[]) =>
+    nodes.map((node, index) => (
+      <React.Fragment key={`${node.type}-${index}`}>{renderNode(node)}</React.Fragment>
+    ));
+
   return (
-    <Layout type={layoutType}>
-      {plan.components.map((node, index) => (
-        <React.Fragment key={`${node.type}-${index}`}>
-          {renderNode(node)}
-        </React.Fragment>
-      ))}
-    </Layout>
+    <div className="preview-stack">
+      {renderNodes(navbarNodes)}
+      <Layout type={resolvedLayout}>
+        {sidebarNodes.length > 0 ? (
+          <>
+            {renderNodes(sidebarNodes)}
+            <div className="preview-main">{renderNodes(mainNodes)}</div>
+          </>
+        ) : (
+          renderNodes(mainNodes)
+        )}
+      </Layout>
+    </div>
   );
 }
 
