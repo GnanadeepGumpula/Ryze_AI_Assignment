@@ -19,7 +19,10 @@ export type ValidationResult = {
 const registry: Record<ComponentType, ComponentSpec> = COMPONENT_REGISTRY;
 const layoutTypes = new Set<string>(registry.Layout.allowedValues?.type ?? []);
 
-const stringProps = new Set(['label', 'placeholder', 'title', 'description', 'content', 'caption']);
+const stringProps = new Set(['label', 'placeholder', 'title', 'description', 'content', 'caption', 'footer']);
+const stringArrayProps = new Set(['headers', 'links', 'items', 'labels']);
+const numberArrayProps = new Set(['values']);
+const booleanProps = new Set(['isOpen']);
 
 export function validatePlan(plan: unknown): ValidationResult {
   const errors: string[] = [];
@@ -100,6 +103,22 @@ function validateNode(node: unknown, path: string, errors: string[]): void {
   for (const [key, value] of Object.entries(props)) {
     if (stringProps.has(key) && typeof value !== 'string') {
       errors.push(`${path}.props.${key} must be a string.`);
+    }
+
+    if (stringArrayProps.has(key)) {
+      if (!Array.isArray(value) || !value.every((cell) => typeof cell === 'string')) {
+        errors.push(`${path}.props.${key} must be an array of strings.`);
+      }
+    }
+
+    if (numberArrayProps.has(key)) {
+      if (!Array.isArray(value) || !value.every((cell) => typeof cell === 'number')) {
+        errors.push(`${path}.props.${key} must be an array of numbers.`);
+      }
+    }
+
+    if (booleanProps.has(key) && typeof value !== 'boolean') {
+      errors.push(`${path}.props.${key} must be a boolean.`);
     }
   }
 

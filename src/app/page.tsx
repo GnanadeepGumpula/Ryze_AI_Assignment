@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useMemo, useState } from 'react';
-import { Button, Card, Input, Layout, Table, pickAllowedProps, validatePlan } from '@/components/lib';
+import { Button, Card, Input, Layout, Table, Modal, Sidebar, Navbar, Chart, pickAllowedProps, validatePlan } from '@/components/lib';
 import type { PlanNode, UIPlan } from '@/components/lib';
 import { generateReactCode } from '@/components/lib/agents/generator';
 
@@ -157,6 +157,21 @@ export default function AssignmentPage() {
     await handleSendMessage(input);
   };
 
+  const handleNewSession = () => {
+    setMessages([]);
+    setVersions([]);
+    setCurrentVersionIndex(null);
+    setCurrentPlan(null);
+    setCurrentCode('');
+    setCurrentExplanation('');
+    setPrompt('');
+    setIsGenerating(false);
+    setIsCodeModified(false);
+    setActiveMobileView('code');
+    setActiveLeftPanel('conversation');
+    setShowHistoryModal(false);
+  };
+
   const handleRollback = (index: number) => {
     if (index < 0 || index >= versions.length) {
       return;
@@ -201,7 +216,9 @@ export default function AssignmentPage() {
               {themeMode === 'dark' && '🌙'}
               {themeMode === 'system' && '💻'}
             </button>
-            <button className="btn btn-ghost">New Session</button>
+            <button className="btn btn-ghost" onClick={handleNewSession} type="button">
+              New Session
+            </button>
             <button className="btn btn-primary" onClick={() => setShowHistoryModal(true)}>
               View History
             </button>
@@ -547,6 +564,14 @@ function renderNode(node: PlanNode): React.ReactNode {
       return <Input {...(safeProps as React.ComponentProps<typeof Input>)} />;
     case 'Table':
       return <Table {...(safeProps as React.ComponentProps<typeof Table>)} />;
+    case 'Modal':
+      return <Modal {...(safeProps as React.ComponentProps<typeof Modal>)}>{children}</Modal>;
+    case 'Sidebar':
+      return <Sidebar {...(safeProps as React.ComponentProps<typeof Sidebar>)}>{children}</Sidebar>;
+    case 'Navbar':
+      return <Navbar {...(safeProps as React.ComponentProps<typeof Navbar>)}>{children}</Navbar>;
+    case 'Chart':
+      return <Chart {...(safeProps as React.ComponentProps<typeof Chart>)} />;
     case 'Layout':
       return <Layout {...(safeProps as React.ComponentProps<typeof Layout>)}>{children}</Layout>;
     default:

@@ -33,6 +33,30 @@ Table:
 - caption: string (optional)
 Example: { "type": "Table", "props": { "headers": ["Name", "Age"], "rows": [["John", "30"]] } }
 
+Modal:
+- title: string (required)
+- description: string (optional)
+- isOpen: boolean (optional, defaults to true)
+Example: { "type": "Modal", "props": { "title": "Invite team", "description": "Add collaborators" }, "children": [] }
+
+Sidebar:
+- title: string (required)
+- items: array of strings (required)
+- footer: string (optional)
+Example: { "type": "Sidebar", "props": { "title": "Workspace", "items": ["Overview", "Projects"] } }
+
+Navbar:
+- title: string (required)
+- links: array of strings (optional)
+Example: { "type": "Navbar", "props": { "title": "Ops Console", "links": ["Overview", "Alerts"] } }
+
+Chart:
+- title: string (required)
+- labels: array of strings (required)
+- values: array of numbers (required)
+- variant: "bar" or "line" (optional, defaults to "bar")
+Example: { "type": "Chart", "props": { "title": "Weekly Active", "labels": ["Mon", "Tue"], "values": [120, 90], "variant": "line" } }
+
 Layout:
 - type: MUST be one of: "grid", "flex", or "sidebar-layout"
 Example: { "type": "Layout", "props": { "type": "grid" }, "children": [...] }

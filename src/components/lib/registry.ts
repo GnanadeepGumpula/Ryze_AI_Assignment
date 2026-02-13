@@ -23,6 +23,21 @@ export const COMPONENT_REGISTRY = {
   Table: {
     allowedProps: ['headers', 'rows', 'caption'],
   },
+  Modal: {
+    allowedProps: ['title', 'description', 'isOpen'],
+  },
+  Sidebar: {
+    allowedProps: ['title', 'items', 'footer'],
+  },
+  Navbar: {
+    allowedProps: ['title', 'links'],
+  },
+  Chart: {
+    allowedProps: ['title', 'labels', 'values', 'variant'],
+    allowedValues: {
+      variant: ['bar', 'line'],
+    },
+  },
   Layout: {
     allowedProps: ['type'],
     allowedValues: {
